@@ -1,0 +1,22 @@
+header {
+    width: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+header .timer, header div a, header h1{
+    display: flex;
+    margin: 5px 20px;
+    color: #660066;
+    text-decoration: none;
+}
+header h1 {
+    display:none;
+}
+#wrong-msg {
+    display:none;
+    border-top: 1px solid black;
+}
+#correctContainer {
+    visibility: hidden;
+}
