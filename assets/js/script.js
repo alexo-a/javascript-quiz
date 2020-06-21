@@ -4,7 +4,7 @@ var questions = [
     a: ["<javascript>", "<scripting>","<js>","<script>"],
     ci: 3}, 
 //question 2
-    {q: "What is the correct JavaScript syntax to change the content of the HTML element below? \n\n<p id='demo'>This is a demonstration.</p>",
+    {q: "What is the correct JavaScript syntax to change the content of the HTML element below? <br> <br>&lt;p id='demo'>This is a demonstration.&lt;/p>",
     a: ["document.getElementByName('p').innerHTML = 'Hello World!';",
     "document.getElementById('p').innerHTML = 'Hello World!';",
     "#demo.innerHTML = 'Hello World!';",
@@ -25,7 +25,7 @@ var questions = [
     ci: 1},
 
 //question 5
-    {q: "The external JavaScript file must contain the <script> tag.",
+    {q: "The external JavaScript file must contain the &lt;script> tag.",
     a: ["True",
         "False"],
     ci: 1},
@@ -84,9 +84,9 @@ var questions = [
     ci: 0},
 //question 14
     {q: "How to insert a comment that has more than one line?",
-    a: ["<!--This comment has" + "\n" + "more than one line-->",
-        "\/* This comment has" + "\n" + "more than one line\*/",
-        "\/\/This comment has" + "\n" + "more than one line\/\/"
+    a: ["<!--This comment has \r\n more than one line-->",
+        "\/* This comment has \r\n more than one line\*/",
+        "\/\/This comment has \r\n more than one line\/\/"
         ],
     ci: 1},
 //question 15
@@ -174,7 +174,7 @@ var goBackBtn = document.querySelector("#goBackBtn");
 var highScoresMessage = document.querySelector("#hsmsg");
 var questionAnswer = 0;
 var timer = 0;
-var possibleQuestions = [];
+
 var chosenQuestions = [];
 var numberCorrect = 0;
 var quizActive = false;
@@ -186,40 +186,48 @@ function getRandomIntInclusive(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
 }
 
+function resetQuestionArray(){
+    var possibleQuestions = [];
+    chosenQuestions = [];
+    //create array with all possible questions
+    for (var i = 0; i <= 24; i++) {
+        possibleQuestions.push(i);
+    };
 
-//create array with all possible questions
-for (var i = 0; i <= 24; i++) {
-    possibleQuestions.push(i);
+    //choose random 10 of those possible questions *WITHOUT* replacement
+    for (var i = 0; i < 10; i++){
+        var chosenIndex = getRandomIntInclusive(0, possibleQuestions.length-1);
+        chosenQuestions.push(possibleQuestions[chosenIndex]);
+        possibleQuestions.splice(chosenIndex,1);
+    }
 };
-
-//choose random 10 of those possible questions *WITHOUT* replacement
-for (var i = 0; i < 10; i++){
-    var chosenIndex = getRandomIntInclusive(0, possibleQuestions.length-1);
-    chosenQuestions.push(possibleQuestions[chosenIndex]);
-    possibleQuestions.splice(chosenIndex,1);
-}
 
 //initialize high scores if not already present
 if (parseInt(localStorage.getItem("score1")) == 0){
-    localStorage.setItem("initials1", "A");
+    localStorage.setItem("initials1", "NA");
     localStorage.setItem("score1", "0");
-    localStorage.setItem("initials2", "AA");
+    localStorage.setItem("initials2", "NA");
     localStorage.setItem("score2", "0");
-    localStorage.setItem("initials3", "AAA");
+    localStorage.setItem("initials3", "NA");
     localStorage.setItem("score3", "0");
 }
 
+function updateToolTipText(){
+    document.querySelector("#hs1").textContent = localStorage.getItem("initials1") + " - " + localStorage.getItem("score1");
+    document.querySelector("#hs2").textContent = localStorage.getItem("initials2") + " - " + localStorage.getItem("score2");
+    document.querySelector("#hs3").textContent = localStorage.getItem("initials3") + " - " + localStorage.getItem("score3");
+}
 
 var changeQuestion = function(index){
     console.log("question " + index +" chosen.");
     while (answersArea.firstChild) {
         answersArea.removeChild(answersArea.firstChild);
     }
-    questionArea.textContent = questions[index].q;
+    questionArea.innerHTML = questions[index].q;
     for (var i = 0; i < questions[index].a.length; i++){
         var ans = document.createElement("button");
         ans.style.display = "block";
-        ans.textContent = (i+1).toString() + ". " + questions[index].a[i];
+        ans.textContent = (i+1).toString() + ". " + " " +  questions[index].a[i];
         ans.setAttribute("ans-btn-id", i);
         ans.className = "ans-btn"
         answersArea.appendChild(ans);
@@ -233,7 +241,10 @@ var addHSToTable = function (obj, place){
     var newScore = document.createElement("li");
     newScore.textContent = obj.initials.toString() + " - " + (obj.score).toString();
     document.querySelector("#high-scores").appendChild(newScore);
-    
+    updateLS(obj,place);
+}
+
+var updateLS = function(obj, place) {
     //update standings in localstorage
     localStorage.setItem("score"+place, obj.score.toString());
     localStorage.setItem("initials"+place, obj.initials.toString());
@@ -244,14 +255,11 @@ var quizWrapUp = function (){
     initialsForm.style.display = "none";
     //validate initials
     var userInitials = document.querySelector("#initials").value.toUpperCase();
-    var userScore = timer + numberCorrect;
+    var userScore = parseInt(timer/1000) + numberCorrect;
     //var highscores = document.querySelector("#high-scores");
-    if (userInitials.length > 5){
-        alert("Please enter initials under 5 letters long."); 
-        return false;
-    }
+
     
-    document.querySelector("#HSbtns").style.display = "block";
+    document.querySelector("#HSbtns").style.display = "flex";
     //query localstorage
     var firstPlace = { initials: localStorage.getItem("initials1"),
         score: parseInt(localStorage.getItem("score1"))};
@@ -297,11 +305,8 @@ var quizWrapUp = function (){
             addHSToTable(secondPlace, "2");
             addHSToTable(user, "3");
         }
-
-
     };
-
-
+    updateToolTipText();
 }
 
 
@@ -331,7 +336,9 @@ var endQuiz= function (){
     }
     else {
         //lo siento, try again?
-        beginQuizBtn.style.display = "block";
+        resetHS();
+        document.querySelector("#timeoutmsg").style.display = "block";
+        //beginQuizBtn.style.display = "block";
     }
 }
 
@@ -343,13 +350,12 @@ var answerChosen = function(event) {
     // edit button was clicked
     if (targetEl.matches(".ans-btn")) {
         var answerId = targetEl.getAttribute("ans-btn-id");
-        console.log("answer " + answerId + " was chosen, correct answer is " + questionAnswer);
+        
         if (answerId != questionAnswer) {
-            
-            console.log("Wrong answer!")
+            console.log("answer " + answerId + " was chosen, correct answer is " + questionAnswer);
             
             //remove time from timer 
-            timer-=5;
+            timer-=5000;
             
             //display "wrong" message
             document.querySelector("#wrong-msg").style.display = "block";
@@ -359,8 +365,9 @@ var answerChosen = function(event) {
             numberCorrect++;
             document.querySelector("#wrong-msg").style.display = "none";
         }
-        console.log(chosenQuestions);
+
         correctCounter.textContent = numberCorrect.toString() + " / " + (10 - chosenQuestions.length).toString();
+        
         if (chosenQuestions.length > 0){
             
             changeQuestion(chosenQuestions.shift());
@@ -375,32 +382,79 @@ var answerChosen = function(event) {
 
 
 var startQuiz = function (){
-
-    //Start Timer
-    timer = 100;
+    resetQuestionArray();
+    document.querySelector("#timeoutmsg").style.display = "none";
+    timer = 60000;
     quizActive = true;
     numberCorrect = 0;
     beginQuizBtn.style.display = "none";
     correctContainer.style.visibility = "visible";
     correctCounter.textContent = numberCorrect + " / 0" ;
     changeQuestion(chosenQuestions.shift());
-    timerHTML.textContent = timer;
+    timerHTML.style.color = "black";
+    timerHTML.style.backgroundColor = "white";
+    timerHTML.textContent =  parseFloat((timer/1000)).toFixed(1).toString() + " seconds left.";
+
     var quizTimer = setInterval(function() {
         console.log(timer + " seconds left.");
-        timerHTML.textContent = timer+ " seconds left.";
-        if (timer <= 0 || !quizActive) {
+        timerHTML.textContent = parseFloat((timer/1000)).toFixed(1).toString() + " seconds left.";
+        
+        if ( !quizActive) {
             clearInterval(quizTimer);
             endQuiz();
         }
-        else {
-            timer-=1;
-            document.querySelector("#wrong-msg").style.display = "none";
+        else if(timer <= 0 ){
+            clearInterval(quizTimer);
+            endQuiz();
         }
 
-    },1000);
+        else {
+            if (timer < 10000){
+                timerHTML.style.color = "white";
+                timerHTML.style.backgroundColor = "red";
+            }
+            else {
+                timerHTML.style.color = "black";
+                timerHTML.style.backgroundColor = "white";
+            };
+            timer-=500;
+            
+        }
+
+    },500);
 
 }
 
+var resetHS = function(){
+    for (var i = 0; i < 3; i++){
+        var object = {initials: "NA", score: 0};
+        updateLS(object, (i+1).toString())
+    }
+    updateToolTipText();
+    resetApp();
+}
+var resetApp = function (){
+    //hide #HSbtns
+    document.querySelector("#HSbtns").style.display = "none";
+    //hide number correct up top
+    correctContainer.style.visibility = "hidden";
+    //hide timer
+    timerHTML.textContent = "";
+    //hide hs table
+    while (document.querySelector("#high-scores").firstChild) {
+        document.querySelector("#high-scores").removeChild(document.querySelector("#high-scores").firstChild);
+    }
+    //show begin button
+    beginQuizBtn.style.display = "block";
+    document.querySelector("#timeoutmsg").style.display = "none";
+}
+
+
+
+
+updateToolTipText();
 beginQuizBtn.addEventListener("click", startQuiz);
 answersArea.addEventListener("click", answerChosen);
 initialsForm.addEventListener("submit", quizWrapUp);
+resetHSBtn.addEventListener("click", resetHS);
+goBackBtn.addEventListener("click", resetApp);

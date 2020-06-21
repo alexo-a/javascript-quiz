@@ -1,11 +1,22 @@
 header {
-    width: 100;
+    width: 100%;
     display: flex;
+
     justify-content: space-between;
-    align-items: flex-end;
-    font-size: 26px;
+    font-size: 22px;
 }
-header .timer, header div a, header h1{
+.high-scores-link {
+    text-align: left;
+}
+
+#correctContainer {
+    text-align: center;
+}
+
+#timer {
+    text-align: right;
+}
+header .timer, header h1{
     display: flex;
     margin: 5px 20px;
     color: #660066;
@@ -16,7 +27,10 @@ header h1 {
 }
 #wrong-msg {
     display:none;
+    font-size: 22px;
+    color: red;
     border-top: 1px solid black;
+
 }
 #correctContainer {
     visibility: hidden;
@@ -38,17 +52,106 @@ button {
     border-radius: 10px;
     font-size: 18px;
 }
+#submitBtn {
+    background-color: #660066;
+    color: white;
+    font-weight: bold;
+    padding: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    font-size: 18px;
+}
 
+form {
+    font-size: 18px;
+    color: #660066;
+    font-weight: bold;
+    text-align: center;
+}
+#HSbtns {
+    display: none;
+    justify-content: center;
+}
 #HSbtns button {
-    margin: 5px auto;
+    margin: 5px 20px;
 }
 #main {
     width: 75%;
-    margin: 10px auto;
+    margin: 50px auto;
 }
 #hsmsg{
     font-size: 22px;
 }
 #high-scores {
     font-size: 18px;
+}
+
+/* Tooltip container */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    color:#660066;
+    border-bottom: 1px dotted #660066; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    /* width: 120px; */
+    background-color: rgba(102, 0, 102,0.5);
+    color: #fff;
+    text-align: center;
+    padding: 0 20px 0 0;
+    border-radius: 6px;
+  
+    /* Position the tooltip text */
+    position: absolute;
+    z-index: 1;
+    top: 175%;
+    left: 0%;
+
+  
+    /* Fade in tooltip */
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+/* Tooltip arrow */
+.tooltip .tooltiptext::after {
+    content: " ";
+    position: absolute;
+    bottom: 100%;  /* At the top of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent rgba(102, 0, 102,0.5) transparent;
+}
+  
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+#beginQuiz{
+    text-align: center;
+    width: 150px;
+}
+#buttonHolder {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    
+}
+#answers button {
+    font-family: "Lucida Console", Courier, monospace;
+    white-space: pre;
+}
+#timeoutmsg {
+    font-size: 22px;
+    color: #660066;
+    font-weight: bold;
+    text-align: center;
+    display: none;
 }
