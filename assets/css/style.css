@@ -3,6 +3,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+    font-size: 26px;
 }
 header .timer, header div a, header h1{
     display: flex;
@@ -19,4 +20,35 @@ header h1 {
 }
 #correctContainer {
     visibility: hidden;
+}
+#initialsForm, #HSbtns{
+    margin-top: 20px;
+    display: none;
+}
+#initialsForm {
+    display: none;
+}
+button {
+    background-color: #660066;
+    color: white;
+    font-weight: bold;
+    padding: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+#HSbtns button {
+    margin: 5px auto;
+}
+#main {
+    width: 75%;
+    margin: 10px auto;
+}
+#hsmsg{
+    font-size: 22px;
+}
+#high-scores {
+    font-size: 18px;
 }

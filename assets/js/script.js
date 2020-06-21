@@ -162,11 +162,16 @@ var questions = [
 
 
 var questionArea = document.querySelector("#question");
+var mainArea = document.querySelector("#main");
 var answersArea = document.querySelector("#answers");
 var beginQuizBtn = document.querySelector("#beginQuiz");
 var timerHTML = document.querySelector("#timer");
 var correctContainer = document.querySelector("#correctContainer");
 var correctCounter = document.querySelector("#correctCounter");
+var initialsForm = document.querySelector("#initialsForm");
+var resetHSBtn = document.querySelector("#purgeHS");
+var goBackBtn = document.querySelector("#goBackBtn");
+var highScoresMessage = document.querySelector("#hsmsg");
 var questionAnswer = 0;
 var timer = 0;
 var possibleQuestions = [];
@@ -174,7 +179,6 @@ var chosenQuestions = [];
 var numberCorrect = 0;
 var quizActive = false;
 
-console.log(questions[1].q, questions[1].a[0],questions[1].a[1],questions[1].a[2],questions[1].a[3],questions[1].ci);
 
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
@@ -190,12 +194,20 @@ for (var i = 0; i <= 24; i++) {
 
 //choose random 10 of those possible questions *WITHOUT* replacement
 for (var i = 0; i < 10; i++){
-    var chosenIndex = getRandomIntInclusive(0, possibleQuestions.length);
+    var chosenIndex = getRandomIntInclusive(0, possibleQuestions.length-1);
     chosenQuestions.push(possibleQuestions[chosenIndex]);
     possibleQuestions.splice(chosenIndex,1);
 }
 
-
+//initialize high scores if not already present
+if (parseInt(localStorage.getItem("score1")) == 0){
+    localStorage.setItem("initials1", "A");
+    localStorage.setItem("score1", "0");
+    localStorage.setItem("initials2", "AA");
+    localStorage.setItem("score2", "0");
+    localStorage.setItem("initials3", "AAA");
+    localStorage.setItem("score3", "0");
+}
 
 
 var changeQuestion = function(index){
@@ -205,9 +217,6 @@ var changeQuestion = function(index){
     }
     questionArea.textContent = questions[index].q;
     for (var i = 0; i < questions[index].a.length; i++){
-/*         var ans = document.createElement("li");
-        ans.textContent = questions[index].a[i];
-        answersArea.appendChild(ans); */
         var ans = document.createElement("button");
         ans.style.display = "block";
         ans.textContent = (i+1).toString() + ". " + questions[index].a[i];
@@ -218,28 +227,111 @@ var changeQuestion = function(index){
     questionAnswer = questions[index].ci;
 }
 
-var quizWrapUp = function (){
-    //display points
-    //prompt for initials
-    //query localstorage
-    //find correct position
+var addHSToTable = function (obj, place){
+    
+    //update visible table
+    var newScore = document.createElement("li");
+    newScore.textContent = obj.initials.toString() + " - " + (obj.score).toString();
+    document.querySelector("#high-scores").appendChild(newScore);
+    
     //update standings in localstorage
+    localStorage.setItem("score"+place, obj.score.toString());
+    localStorage.setItem("initials"+place, obj.initials.toString());
+}
+
+var quizWrapUp = function (){
+    event.preventDefault();
+    initialsForm.style.display = "none";
+    //validate initials
+    var userInitials = document.querySelector("#initials").value.toUpperCase();
+    var userScore = timer + numberCorrect;
+    //var highscores = document.querySelector("#high-scores");
+    if (userInitials.length > 5){
+        alert("Please enter initials under 5 letters long."); 
+        return false;
+    }
+    
+    document.querySelector("#HSbtns").style.display = "block";
+    //query localstorage
+    var firstPlace = { initials: localStorage.getItem("initials1"),
+        score: parseInt(localStorage.getItem("score1"))};
+    var secondPlace = { initials: localStorage.getItem("initials2"),
+        score: parseInt(localStorage.getItem("score2"))};
+    var thirdPlace = { initials: localStorage.getItem("initials3"),
+        score: parseInt(localStorage.getItem("score3"))};
+    var user = {initials: userInitials, score: userScore};
+    
+    console.log("place: ??   initials: " +userInitials.initials+ " score: "+userInitials.score);
+    
+    
     //display highscores, with new one highlighted
+    if(userScore <= thirdPlace.score){
+        //doesn't make the high scores.
+        highScoresMessage.textContent = "Sorry, you didn't make the high scores."
+        goBackBtn.style.display = "inline";
+    }
+    else {
+        goBackBtn.style.display = "inline";
+        resetHSBtn.style.display = "inline";
+        //find correct position
+        if (userScore >= secondPlace.score){
+            if( userScore >= firstPlace.score){
+                //first place!
+                //order: user, 1st, 2nd
+                addHSToTable(user, "1");
+                addHSToTable(firstPlace, "2");
+                addHSToTable(secondPlace, "3");
+            }
+            else {
+                //second place!!
+                //order: 1st, user, 2nd
+                addHSToTable(firstPlace, "1");
+                addHSToTable(user, "2");
+                addHSToTable(thirdPlace, "3");
+            }
+        }
+        else {
+            //third place!
+            //order: 1st, 2nd, user
+            addHSToTable(firstPlace, "1");
+            addHSToTable(secondPlace, "2");
+            addHSToTable(user, "3");
+        }
+
+
+    };
+
+
 }
 
 
 var endQuiz= function (){
-    alert("quiz has ended");
-    //quizActive = false;
-    var score = timer + numberCorrect;
+    
+    //clean up area
     while (answersArea.firstChild) {
         answersArea.removeChild(answersArea.firstChild);
     }
     questionArea.textContent = "";
-    document.querySelector("#wrong-msg").style.display = "hidden";
-    if (timer > 0) {
+    document.querySelector("#wrong-msg").style.display = "none";
 
+
+    if (timer > 0) { //indicates successful quiz
+        beginQuizBtn.style.display = "none";
+        console.log("quiz completed. you're a winner bro.")
         
+        //display points
+        var score = timer + numberCorrect;
+        var scoreMsg = document.createElement("h2");
+        scoreMsg.textContent = "Congratulations! You scored " + score.toString() + " points!";
+        
+        //prompt for initials
+        
+        initialsForm.style.display = "block";
+        
+    }
+    else {
+        //lo siento, try again?
+        beginQuizBtn.style.display = "block";
     }
 }
 
@@ -265,9 +357,9 @@ var answerChosen = function(event) {
         else {
             console.log("Correct answer!")
             numberCorrect++;
-            document.querySelector("#wrong-msg").style.display = "hidden";
+            document.querySelector("#wrong-msg").style.display = "none";
         }
-
+        console.log(chosenQuestions);
         correctCounter.textContent = numberCorrect.toString() + " / " + (10 - chosenQuestions.length).toString();
         if (chosenQuestions.length > 0){
             
@@ -288,19 +380,21 @@ var startQuiz = function (){
     timer = 100;
     quizActive = true;
     numberCorrect = 0;
+    beginQuizBtn.style.display = "none";
     correctContainer.style.visibility = "visible";
     correctCounter.textContent = numberCorrect + " / 0" ;
     changeQuestion(chosenQuestions.shift());
     timerHTML.textContent = timer;
     var quizTimer = setInterval(function() {
         console.log(timer + " seconds left.");
-        timerHTML.textContent = timer;
+        timerHTML.textContent = timer+ " seconds left.";
         if (timer <= 0 || !quizActive) {
             clearInterval(quizTimer);
             endQuiz();
         }
         else {
             timer-=1;
+            document.querySelector("#wrong-msg").style.display = "none";
         }
 
     },1000);
@@ -308,4 +402,5 @@ var startQuiz = function (){
 }
 
 beginQuizBtn.addEventListener("click", startQuiz);
-answersArea.addEventListener("click", answerChosen)
+answersArea.addEventListener("click", answerChosen);
+initialsForm.addEventListener("submit", quizWrapUp);
