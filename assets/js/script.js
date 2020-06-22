@@ -181,6 +181,7 @@ var quizActive = false;
 
 
 function getRandomIntInclusive(min, max) {
+    //from MDN https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
@@ -202,7 +203,7 @@ function resetQuestionArray(){
     }
 };
 
-//initialize high scores if not already present
+//initialize high scores if not already present. I'm not lazy, I'm efficient
 if (parseInt(localStorage.getItem("score1")) == 0){
     localStorage.setItem("initials1", "NA");
     localStorage.setItem("score1", "0");
@@ -220,10 +221,14 @@ function updateToolTipText(){
 
 var changeQuestion = function(index){
     console.log("question " + index +" chosen.");
+    //remove the previous question's answers
     while (answersArea.firstChild) {
         answersArea.removeChild(answersArea.firstChild);
     }
+    //populate with new question
     questionArea.innerHTML = questions[index].q;
+
+    //populate answersArea with new answers
     for (var i = 0; i < questions[index].a.length; i++){
         var ans = document.createElement("button");
         ans.style.display = "block";
@@ -383,7 +388,9 @@ var answerChosen = function(event) {
 
 var startQuiz = function (){
     resetQuestionArray();
+    //make sure the timeout message is hidden on quiz start
     document.querySelector("#timeoutmsg").style.display = "none";
+    //60s
     timer = 60000;
     quizActive = true;
     numberCorrect = 0;
@@ -399,15 +406,18 @@ var startQuiz = function (){
         console.log(timer + " seconds left.");
         timerHTML.textContent = parseFloat((timer/1000)).toFixed(1).toString() + " seconds left.";
         
+        //if the quiz was completed before timer up
         if ( !quizActive) {
             clearInterval(quizTimer);
             endQuiz();
         }
+        //if the timer was up before quiz completion
         else if(timer <= 0 ){
             clearInterval(quizTimer);
             endQuiz();
         }
 
+        //if the quiz is still going
         else {
             if (timer < 10000){
                 timerHTML.style.color = "white";
@@ -446,6 +456,8 @@ var resetApp = function (){
     }
     //show begin button
     beginQuizBtn.style.display = "block";
+    //update highscores 
+    updateToolTipText();
     document.querySelector("#timeoutmsg").style.display = "none";
 }
 
