@@ -64,7 +64,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-![screenshot of quiz](screenshot.PNG?raw=true)
+![screenshot of quiz](https://github.com/alexo-a/javascript-quiz/blob/master/screenshot.png)
 
 A simple JavaScript quiz that will record your high scores. A correct answer will get you one point and an incorrect answer will give you no points AND will take five seconds off the clock.
 The questions were borrowed from <a href="https://www.w3schools.com/js/js_quiz.asp">W3's JavaScript quiz</href>.
